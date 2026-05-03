@@ -1,0 +1,7 @@
+# Language detection overrides
+scripts/*.sh linguist-vendored
+tools/*.sh linguist-vendored
+patches/** linguist-vendored
+docs/** linguist-documentation
+benchmarks/**/*.c linguist-detectable=true
+tools/**/*.c linguist-detectable=true
