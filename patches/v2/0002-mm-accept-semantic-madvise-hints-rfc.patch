@@ -15,15 +15,14 @@ research tools.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/madvise.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ mm/madvise.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/mm/madvise.c b/mm/madvise.c
-index a828f80..b938c90 100644
+index a828f802d2c1..17604f216253 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -1094,6 +1094,11 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
- 		break;
+@@ -1095,6 +1095,11 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
  	case MADV_COLLAPSE:
  		return madvise_collapse(vma, prev, start, end);
 +	case MADV_SEMANTIC_STREAMING:
@@ -34,14 +33,13 @@ index a828f80..b938c90 100644
  	}
  
  	anon_name = anon_vma_name(vma);
-@@ -1198,6 +1203,10 @@ madvise_behavior_valid(int behavior)
- 	case MADV_HWPOISON:
+@@ -1191,6 +1196,9 @@ madvise_behavior_valid(int behavior)
  #endif
 +	case MADV_SEMANTIC_STREAMING:
 +	case MADV_SEMANTIC_REUSE:
 +	case MADV_SEMANTIC_EPHEMERAL:
- 		return true;
- 
- 	default:
+ 	case MADV_DONTDUMP:
+ 	case MADV_DODUMP:
+ 	case MADV_WIPEONFORK:
 -- 
 2.34.1
