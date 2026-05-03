@@ -6,7 +6,7 @@ Follow these steps to run the `linux-inference-memory-hints` benchmarks in a rep
 On your host Linux machine:
 ```bash
 sudo apt update
-sudo apt install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev bc wget qemu-system-x86_64
+sudo apt install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev bc wget qemu-system-x86_64 debootstrap
 ```
 
 ## Step 2: Build the Patched Kernel
@@ -16,9 +16,12 @@ chmod +x scripts/*.sh
 ./scripts/build_kernel.sh
 ```
 
-## Step 3: Prepare the Root Filesystem
-You need a `rootfs.ext4` in the repository root. See [docs/rootfs-options.md](rootfs-options.md) for detailed instructions.
-A 10GB Ubuntu or Debian minimal image is recommended.
+## Step 3: Create the Root Filesystem
+This project requires a minimal Linux environment to run benchmarks. The automated script uses `debootstrap` to build a Debian-based image.
+```bash
+# This requires root privileges
+sudo ./scripts/create_rootfs.sh
+```
 
 ## Step 4: Boot QEMU
 Launch the VM. This script mounts the repo as `/mnt/repo` inside the guest.

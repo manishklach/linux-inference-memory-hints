@@ -21,7 +21,7 @@ fi
 
 if [ ! -f "${ROOTFS_IMG}" ]; then
     echo "ERROR: Root filesystem image not found at ${ROOTFS_IMG}."
-    echo "See docs/rootfs-options.md for instructions on creating one."
+    echo "Please run 'sudo ./scripts/create_rootfs.sh' first to create one."
     exit 1
 fi
 

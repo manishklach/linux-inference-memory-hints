@@ -23,6 +23,9 @@ check-semantic-support: build
 build-kernel:
 	@bash scripts/build_kernel.sh
 
+create-rootfs:
+	@sudo bash scripts/create_rootfs.sh
+
 run-qemu:
 	@bash scripts/run_qemu.sh
 
