@@ -20,6 +20,15 @@ build:
 check-semantic-support: build
 	@./$(TOOLS_DIR)/check_semantic_support
 
+build-kernel:
+	@bash scripts/build_kernel.sh
+
+run-qemu:
+	@bash scripts/run_qemu.sh
+
+run-in-vm-note:
+	@echo "To run benchmarks inside the VM, execute: /mnt/repo/scripts/run_in_vm.sh"
+
 check-env:
 	@bash $(TOOLS_DIR)/check_environment.sh
 

@@ -15,6 +15,12 @@ We provide a reproducible **QEMU-based environment** to evaluate these patches:
 2. **Setup**: Follow the [QEMU Setup Guide](docs/qemu-setup.md) to prepare a rootfs.
 3. **Run**: `./scripts/run_qemu.sh` launches the VM with the patched kernel and shared repo access.
 
+### QEMU Workflow Status
+The QEMU environment is intended for **patched-kernel validation** and behavioral verification. While it lacks the physical NUMA characteristics of a production server, it provides a stable environment to verify:
+- **API Acceptance**: `MADV_SEMANTIC_*` is recognized.
+- **Metadata Tracking**: Hints are correctly recorded in VMA structures.
+- **Reclaim Movement**: Verify that `semantic_reclaim` counters increment during pressure.
+
 ## Quick Start
 To build and run a full comparative demo (Baseline vs. Semantic Hints):
 

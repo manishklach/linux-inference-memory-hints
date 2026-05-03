@@ -6,12 +6,31 @@ KERNEL_IMG="kernel-build/arch/x86/boot/bzImage"
 ROOTFS_IMG="rootfs.ext4"
 REPO_PATH=$(pwd)
 
-if [ ! -f "${KERNEL_IMG}" ]; then
-    echo "ERROR: Kernel image not found. Run ./scripts/build_kernel.sh first."
+echo "--- QEMU Preflight Checks ---"
+
+if ! command -v qemu-system-x86_64 &> /dev/null; then
+    echo "ERROR: qemu-system-x86_64 not found. Please install QEMU."
     exit 1
 fi
 
-echo "Booting patched kernel in QEMU..."
+if [ ! -f "${KERNEL_IMG}" ]; then
+    echo "ERROR: Kernel image not found at ${KERNEL_IMG}."
+    echo "Please run ./scripts/build_kernel.sh first."
+    exit 1
+fi
+
+if [ ! -f "${ROOTFS_IMG}" ]; then
+    echo "ERROR: Root filesystem image not found at ${ROOTFS_IMG}."
+    echo "See docs/rootfs-options.md for instructions on creating one."
+    exit 1
+fi
+
+if [ ! -d "${REPO_PATH}/tools" ]; then
+    echo "ERROR: Repository path ${REPO_PATH} does not appear to be the repo root."
+    exit 1
+fi
+
+echo "All checks passed. Booting patched kernel in QEMU..."
 
 qemu-system-x86_64 \
     -kernel "${KERNEL_IMG}" \

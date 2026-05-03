@@ -9,6 +9,25 @@ REPO_ROOT=$(pwd)
 
 set -e
 
+echo "--- Kernel Build Preflight Checks ---"
+DEPENDENCIES=("wget" "tar" "make" "gcc" "flex" "bison" "bc")
+MISSING=()
+
+for cmd in "${DEPENDENCIES[@]}"; do
+    if ! command -v "$cmd" &> /dev/null; then
+        MISSING+=("$cmd")
+    fi
+done
+
+if [ ${#MISSING[@]} -ne 0 ]; then
+    echo "ERROR: Missing required build dependencies: ${MISSING[*]}"
+    echo "On Ubuntu/Debian, run:"
+    echo "sudo apt update && sudo apt install -y build-essential libncurses-dev bison flex libssl-dev libelf-dev bc wget"
+    exit 1
+fi
+
+echo "All dependencies found."
+
 echo "Starting kernel build for version ${KERNEL_VERSION}..."
 
 # 1. Download
@@ -45,6 +64,17 @@ scripts/config --enable CONFIG_DEBUG_FS
 scripts/config --enable CONFIG_LRU_GEN
 scripts/config --enable CONFIG_PROC_FS
 scripts/config --enable CONFIG_PSI
+scripts/config --enable CONFIG_CGROUPS
+scripts/config --enable CONFIG_MEMCG
+
+echo "--- Research Config Verification ---"
+for cfg in CONFIG_DEBUG_FS CONFIG_LRU_GEN CONFIG_PROC_FS CONFIG_PSI CONFIG_CGROUPS CONFIG_MEMCG; do
+    if grep -q "${cfg}=y" .config; then
+        echo "[OK] ${cfg} is enabled."
+    else
+        echo "[WARN] ${cfg} might not be enabled. Check .config."
+    fi
+done
 
 # 5. Build
 echo "Building bzImage (this will take time)..."
