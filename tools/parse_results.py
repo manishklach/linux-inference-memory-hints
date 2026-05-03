@@ -98,6 +98,55 @@ def main():
                 writer.writerow(row)
 
     print("Summary results saved to results/summary.json and results/summary.csv")
+    
+    # Signal Detection & Analysis (Milestone 3)
+    generate_analysis(summary)
+
+def generate_analysis(summary):
+    baseline = summary.get('baseline')
+    semantic = summary.get('semantic')
+    
+    if not baseline or not semantic:
+        return
+
+    analysis_path = "results/analysis.txt"
+    with open(analysis_path, 'w') as f:
+        f.write("--- Semantic Memory Hints Signal Analysis ---\n\n")
+        
+        # 1. Counter Check
+        reuse_protected = semantic.get('semantic_reuse_protected', 0)
+        ephemeral_reclaimed = semantic.get('semantic_ephemeral_reclaimed', 0)
+        
+        f.write(f"Metadata Observation:\n")
+        f.write(f"  - Reuse Protected Count: {reuse_protected}\n")
+        f.write(f"  - Ephemeral Reclaimed Count: {ephemeral_reclaimed}\n\n")
+
+        # 2. Efficiency Delta
+        b_eff = baseline.get('reclaim_efficiency', 0)
+        s_eff = semantic.get('reclaim_efficiency', 0)
+        delta_eff = s_eff - b_eff
+        
+        f.write(f"Reclaim Efficiency Analysis:\n")
+        f.write(f"  - Baseline: {b_eff:.4f}\n")
+        f.write(f"  - Semantic: {s_eff:.4f}\n")
+        f.write(f"  - Delta: {delta_eff:+.4f}\n\n")
+
+        # 3. Interpretation
+        f.write("Interpretation:\n")
+        if reuse_protected > 0 or ephemeral_reclaimed > 0:
+            f.write("  [OK] SIGNAL DETECTED: Kernel is observing semantic hints via counters.\n")
+        else:
+            f.write("  [FAIL] NO COUNTER SIGNAL: Kernel did not report any semantic reclaim activity.\n")
+            f.write("         Check if debugfs was mounted and accessible during run.\n")
+
+        if abs(delta_eff) > 0.05:
+            direction = "INCREASED" if delta_eff > 0 else "DECREASED"
+            f.write(f"  [OK] BEHAVIOR CHANGE: Reclaim efficiency {direction} by {abs(delta_eff)*100:.1f}%.\n")
+        else:
+            f.write("  [INFO] NO SIGNIFICANT BEHAVIOR CHANGE: Efficiency delta is within noise threshold.\n")
+            f.write("         The reclaim bias might be too weak or memory pressure was insufficient.\n")
+
+    print(f"Analysis report generated at {analysis_path}")
 
 if __name__ == "__main__":
     main()

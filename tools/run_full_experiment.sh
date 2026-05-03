@@ -18,14 +18,25 @@ cleanup() {
 }
 trap cleanup EXIT
 
+REQUIRE_SEMANTIC=0
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --runs) RUNS="$2"; shift ;;
         --dry-run) DRY_RUN=true ;;
+        --require-semantic) REQUIRE_SEMANTIC=1 ;;
         *) echo "Unknown parameter: $1"; exit 1 ;;
     esac
     shift
 done
+
+if [ "$REQUIRE_SEMANTIC" -eq 1 ]; then
+    echo "Checking for semantic support..."
+    if ! ./tools/check_semantic_support | grep -q "SUPPORTED"; then
+        echo "ERROR: --require-semantic specified but kernel does not support semantic hints."
+        exit 1
+    fi
+fi
 
 if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would perform $RUNS runs per mode."

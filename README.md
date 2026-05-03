@@ -36,17 +36,21 @@ The `make demo` target will generate visualizations in `results/plots/`.
 
 ## Interpreting Results
 
-### Failed Semantic madvise calls
-If you see `madvise failed: Invalid Argument` in the benchmark output:
-- **Reason**: You are likely running on an unpatched kernel.
-- **Impact**: The benchmark will continue to run, but the kernel will ignore the semantic hints, effectively making the "Semantic" run identical to the "Baseline."
+### Analysis Report
+Check `results/analysis.txt` after a run for an automated interpretation of the data.
 
-### What to look for
-> **NOTE ON WSL2**: WSL2 validation confirms the harness works but does not provide meaningful reclaim data. Real reclaim behavior should be measured on a patched kernel running on bare metal or a full VM.
+### Signal Categories
 
-1. **Reclaim Efficiency**: In the `efficiency_ratio.png` plot, look for higher values in the Semantic mode. 
-2. **Support Verification**: Run `make check-semantic-support` to verify if your kernel supports the RFC hints.
-3. **Scan Counters**: A reduction in `pgscan` relative to `pgsteal` suggests the kernel is making more targeted reclaim decisions.
+#### 1. Metadata Signal (`reuse_protected`, `ephemeral_reclaimed`)
+- **Action**: Look for non-zero values in `summary.csv` or `analysis.txt`.
+- **Meaning**: This confirms the kernel is successfully identifying semantic regions during reclaim and applying the experimental bias.
+
+#### 2. Reclaim Signal (`pgscan`, `pgsteal`, `reclaim_efficiency`)
+- **Action**: Compare the `reclaim_efficiency` (`pgsteal / pgscan`) between **Baseline** and **Semantic**.
+- **Meaning**: An increase in efficiency suggests the kernel is successfully avoiding "hot" reuse pages and focusing on "cold" or ephemeral ones.
+
+#### 3. No Change
+- **Meaning**: This is expected if the system is not under significant memory pressure. Ensure the `memory_pressure` tool is running and `pgscan` values are non-zero.
 
 ## Design Constraints
 - **Primary Language**: C
