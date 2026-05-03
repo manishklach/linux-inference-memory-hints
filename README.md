@@ -13,6 +13,24 @@ This project is **NOT** submitted to LKML.
 
 `linux-inference-memory-hints` is a research project exploring the use of **semantic memory hints** to optimize Linux kernel memory management for large-scale AI inference workloads.
 
+## Quick Start
+To build the research tools and run a full comparative demo (Baseline vs. Semantic Hints):
+
+```bash
+make demo
+```
+This target will check your environment, compile the C tools, run the synthetic workloads under memory pressure, and generate comparison plots in `results/plots/`.
+
+## What This Demo Proves
+- **Measurement Infrastructure**: It validates that the kernel-to-userspace observability loop is functional and capable of capturing subtle MM (Memory Management) changes.
+- **Counter Sensitivity**: It shows whether the lightweight reclaim bias in `vmscan.c` successfully alters standard counters like `pgscan` and `pgsteal`.
+- **Reproducibility**: It provides a standardized framework for testing memory policy changes without external dependencies like large LLM weights.
+
+## What This Demo Does Not Prove
+- **Production Gains**: It does not prove that these hints will improve tokens/sec in a production vLLM or llama.cpp deployment yet.
+- **Upstream Acceptance**: It does not imply that this specific API or implementation is ready for the mainline Linux kernel.
+- **Optimality**: It does not prove that the current reclaim bias (1x increment) is the optimal value for all workloads.
+
 ## Synthetic Benchmark
 To evaluate semantic hints in a controlled environment, we provide a synthetic benchmark (`benchmarks/synthetic/memory_patterns.c`) that simulates the core memory behaviors of an LLM inference engine:
 
@@ -43,23 +61,24 @@ We focus on low-level kernel metrics rather than high-level application throughp
     - `plot_results.py`: Generates comparative visualizations.
 - `docs/`: Design and upstreaming documents.
 
+## Results (Preliminary)
+Experiments are conducted to compare **Baseline**, **Existing Linux Hints**, and our proposed **Semantic Hints**. 
+
+- **Primary Metric**: Reclaim Efficiency (`pgsteal / pgscan`).
+- **Focus**: Observing how userspace intent signals affect kernel-level page reclamation priority.
+- **Data Status**: Results will be populated here after completing local experiment runs. Use `make demo` to generate results on your local patched kernel.
+
 ## Usage (Local Research)
 1. **Compile Benchmarks**:
    ```bash
-   gcc benchmarks/synthetic/memory_patterns.c -o benchmarks/synthetic/patterns
-   gcc benchmarks/pressure/memory_pressure.c -o benchmarks/pressure/pressure
+   make build
    ```
-2. **Run with Pressure**:
+2. **Run Full Experiment (Multi-run)**:
    ```bash
-   ./benchmarks/pressure/pressure 8 &
-   ./benchmarks/synthetic/patterns --hints &
+   ./tools/run_full_experiment.sh --runs 3
    ```
-3. **Collect & Plot**:
-   ```bash
-   ./tools/run_llama_semantic.sh
-   python3 tools/parse_results.py
-   python3 tools/plot_results.py
-   ```
+3. **View Plots**:
+   Check `results/plots/` for visual comparisons.
 
 ## License
-MIT
+GPL v2
