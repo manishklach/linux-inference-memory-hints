@@ -57,8 +57,13 @@ Check `results/analysis.txt` after a run for an automated interpretation of the 
 - **Minimal Surface Area**: Implementation avoids invasive changes to core VM structures.
 - **No VM Flag Conflicts**: Semantic state is stored in `vma->vm_semantic_hint`.
 
-## Known Limitations
-See [docs/known-limitations.md](docs/known-limitations.md) for a detailed list of prototype constraints.
+## Experimental Findings (v4)
+Current testing on unpatched host environments (WSL2) confirms that the **experimental harness is fully functional**. While no behavioral signal is expected or observed on standard kernels (Case C), the metadata recording and signal detection engine successfully flag the absence of kernel-side support. Real-world reclaim bias evaluation requires a patched bare-metal kernel.
+
+## Next Steps
+- **Improve VMA → Folio Mapping**: Investigate more robust folio-to-VMA lookups if rmap-based bias proves too narrow.
+- **Milestone 4 (Planned)**: Proceed to NUMA-aware placement and Transparent Huge Page (THP) optimization experiments once reclaim bias is verified on bare metal.
+- **Broaden Workloads**: Integrate with `llama.cpp` to measure latency impact on real-world inference tokens-per-second.
 
 ## License
 GPL-2.0-only

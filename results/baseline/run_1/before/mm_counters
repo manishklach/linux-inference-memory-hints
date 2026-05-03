@@ -1,5 +1,5 @@
-pgfault 2019863
-pgmajfault 6397
+pgfault 45238271
+pgmajfault 6757
 pgsteal_kswapd 0
 pgsteal_direct 0
 pgsteal_khugepaged 0

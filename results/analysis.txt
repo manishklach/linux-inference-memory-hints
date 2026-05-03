@@ -1,0 +1,15 @@
+--- Semantic Memory Hints Signal Analysis ---
+
+Metadata Observation:
+  - Reuse Protected Count: 0
+  - Ephemeral Reclaimed Count: 0
+
+Reclaim Efficiency Analysis:
+  - Baseline: 0.1693
+  - Semantic: 0.0000
+  - Delta: -0.1693
+
+Interpretation:
+  [FAIL] NO COUNTER SIGNAL: Kernel did not report any semantic reclaim activity.
+         Check if debugfs was mounted and accessible during run.
+  [OK] BEHAVIOR CHANGE: Reclaim efficiency DECREASED by 16.9%.
