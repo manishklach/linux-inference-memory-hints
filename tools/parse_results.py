@@ -53,6 +53,19 @@ def main():
                 before = parse_counters(before_path)
                 after = parse_counters(after_path)
                 diff = compute_diff(before, after)
+                
+                # Parse semantic counters (Milestone 3)
+                sem_dir = os.path.join(mode_path, run_dir, "after", "semantic_reclaim")
+                if os.path.exists(sem_dir):
+                    for fname in os.listdir(sem_dir):
+                        val_path = os.path.join(sem_dir, fname)
+                        if os.path.isfile(val_path):
+                            try:
+                                with open(val_path, 'r') as vf:
+                                    diff[f"semantic_{fname}"] = int(vf.read().strip())
+                            except ValueError:
+                                pass
+
                 if diff:
                     runs_data.append(diff)
         

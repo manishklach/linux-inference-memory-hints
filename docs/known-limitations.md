@@ -21,9 +21,14 @@ Standard Linux `vmstat` counters (like `pgscan` and `pgsteal`) are system-wide.
 - Real workloads have more complex access patterns and thread contention that the synthetic tool may not capture.
 
 ## 5. Lifecycle Trade-offs
-The current prototype implementation stores semantic state in `vma->vm_private_data`. 
-- This approach does not currently handle VMA splitting or merging.
-- If a VMA is resized or split after the hint is applied, the hint may be lost for the new VMA segments.
+The current prototype implementation stores semantic state in `vma->vm_semantic_hint`. 
+- This ensures hints are cloned during VMA splits.
+- Advanced merging logic for differing semantic hints is not yet implemented.
+
+## 6. Reclaim Context (Milestone 3)
+The v4 reclaim bias relies on `folio_referenced_one()` having access to the VMA.
+- In some reclaim paths (like global direct reclaim without rmap walks), the semantic hint may not be visible.
+- Consequently, the `semantic_reclaim` counters may not capture every eviction event, but they provide a consistent delta for synthetic validation.
 
 ---
 **Upstream Status**: These limitations are expected for a v1 RFC. Future iterations would address VMA lifecycle integration and broader architectural support.

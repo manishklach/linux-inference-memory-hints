@@ -9,7 +9,7 @@ The current implementation is intentionally minimal and experimental, designed t
 ## Research Roadmap
 - **Milestone 1**: Semantic hints accepted by patched kernel (Patch v2).
 - **Milestone 2**: Persistent metadata tracking (VMA tagging) (Patch v3).
-- **Milestone 3**: Basic reclaim bias implementation.
+- **Milestone 3**: Best-effort semantic reclaim bias (Patch v4).
 - **Milestone 4**: Advanced NUMA, THP, and MGLRU experiments.
 
 ## Quick Start

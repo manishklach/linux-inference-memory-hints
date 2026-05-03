@@ -13,6 +13,13 @@ To preserve semantic intent across VMA splits and merges, we add a `u8 vm_semant
 
 This ensures that if a VMA is split (e.g., via `mprotect` on a sub-range), the semantic intent is automatically cloned to the new VMA.
 
+## v4 Reclaim Bias (Milestone 3)
+In Milestone 3, we introduce a minimal, best-effort reclaim bias.
+- **REUSE Protection**: We increment the folio reference count in `folio_referenced_one()` even if the hardware bit is not set, effectively slowing down aging for KV Cache regions.
+- **EPHEMERAL Pressure**: we suppress reference increments for ephemeral VMAs, allowing them to be reclaimed first when the system is under pressure.
+
+**Limitations**: Reclaim context does not always provide a VMA. This implementation is focused on the rmap-based aging path where the VMA context is available.
+
 ## Problem Statement
 Inference workloads typically manage three distinct categories of memory:
 1. **Model Weights**: Extremely large, read-only (mostly), and frequently accessed in a predictable sequence.

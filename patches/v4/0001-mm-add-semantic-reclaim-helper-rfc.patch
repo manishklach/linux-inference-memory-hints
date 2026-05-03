@@ -1,0 +1,38 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 14:00:00 -0700
+Subject: [PATCH 0001/0003] RFC: mm: add semantic reclaim helper
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch introduces a helper function 'vma_semantic_hint(vma)' to safely
+retrieve the recorded semantic intent for a given VMA.
+
+This provides the foundation for the reclaim path to query the
+intended memory behavior (streaming, reuse, ephemeral) before
+making aging or eviction decisions.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ include/linux/mm.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 8d28f802e2c1..9d28f802e2c1 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -272,6 +272,12 @@ extern unsigned int kobj_max_free_obj(struct kobject *kobj);
+ #define VM_SEMANTIC_EPHEMERAL	3
+ /* End RFC */
+ 
++/* RFC: Helper to get semantic hint from VMA */
++static inline u8 vma_semantic_hint(struct vm_area_struct *vma)
++{
++	return vma->vm_semantic_hint;
++}
++
+ #ifndef VM_GROWSUP
+ #define VM_GROWSUP	VM_NONE
+ #endif
+-- 
+2.34.1

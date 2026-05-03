@@ -34,3 +34,8 @@ if [ -f /sys/kernel/mm/lru_gen/enabled ]; then
         cp -r /sys/kernel/debug/lru_gen "$OUT_DIR/mglru_debug" 2>/dev/null || echo "WARN: Failed to copy debugfs lru_gen (insufficient permissions?)"
     fi
 fi
+
+# Semantic Reclaim Counters (Milestone 3)
+if [ -d /sys/kernel/debug/semantic_reclaim ]; then
+    cp -r /sys/kernel/debug/semantic_reclaim "$OUT_DIR/semantic_reclaim" 2>/dev/null
+fi

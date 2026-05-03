@@ -1,0 +1,63 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 14:10:00 -0700
+Subject: [PATCH 0002/0003] RFC: mm: apply minimal semantic reclaim bias
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch implements a lightweight, best-effort reclaim bias in
+the folio_referenced_one() path.
+
+Bias Logic:
+- VM_SEMANTIC_REUSE:
+  Increments the referenced count even if the hardware referenced bit
+  is not set, protecting frequently reused data (e.g., KV Cache) from
+  premature aging.
+
+- VM_SEMANTIC_EPHEMERAL:
+  Suppresses the reference count increment, allowing short-lived
+  buffers to be reclaimed more aggressively under memory pressure.
+
+This bias is intentionally conservative and does not make pages
+unevictable.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ mm/rmap.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/mm/rmap.c b/mm/rmap.c
+index a123456789ab..8d28f802e2c1 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -825,6 +825,7 @@ static bool folio_referenced_one(struct folio *folio,
+ 	struct folio_referenced_arg *pra = arg;
+ 	DEFINE_FOLIO_VMA_WALK(pvmw, folio, vma, address, 0);
+ 	int referenced = 0;
++	u8 semantic_hint = vma_semantic_hint(vma);
+ 
+ 	while (page_vma_mapped_walk(&pvmw)) {
+ 		address = pvmw.address;
+@@ -870,6 +871,20 @@ static bool folio_referenced_one(struct folio *folio,
+ 		referenced++;
+ 	}
+ 
++	/* RFC: Apply semantic reclaim bias */
++	if (semantic_hint == VM_SEMANTIC_REUSE) {
++		/* Protect slightly: ensure at least one reference is recorded */
++		if (!referenced) {
++			referenced++;
++			mm_account_semantic_reuse_protected();
++		}
++	} else if (semantic_hint == VM_SEMANTIC_EPHEMERAL) {
++		/* Reclaim aggressively: ignore references for ephemeral pages */
++		if (referenced)
++			mm_account_semantic_ephemeral_reclaimed();
++		referenced = 0;
++	}
++
+ 	if (referenced) {
+ 		pra->referenced++;
+ 		pra->vm_flags |= vma->vm_flags;
+-- 
+2.34.1

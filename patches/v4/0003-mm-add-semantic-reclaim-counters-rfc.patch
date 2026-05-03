@@ -1,0 +1,74 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 14:20:00 -0700
+Subject: [PATCH 0003/0003] RFC: mm: add semantic reclaim counters
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch adds lightweight observability counters to track the impact
+of semantic reclaim bias.
+
+Counters (exposed via /sys/kernel/debug/mm/semantic_reclaim):
+- reuse_protected: Count of folios protected due to REUSE hint.
+- ephemeral_reclaimed: Count of ephemeral folios where references were ignored.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ mm/vmscan.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 287958b4f2c0..8d28a802e2d1 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -55,6 +55,14 @@
+ #include "internal.h"
+ #include "unaccepted_memory.h"
+ 
++/* RFC: Semantic Reclaim Counters */
++#include <linux/debugfs.h>
++static struct {
++	atomic64_t reuse_protected;
++	atomic64_t ephemeral_reclaimed;
++} semantic_stats;
++/* End RFC */
++
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/vmscan.h>
+ 
+@@ -825,6 +833,43 @@ static void folio_check_dirty_writeback(struct folio *folio,
+ 		*dirty = true;
+ }
+ 
++/* RFC: DebugFS initialization for semantic counters */
++static int __init semantic_reclaim_debugfs_init(void)
++{
++	struct dentry *root = debugfs_create_dir("semantic_reclaim", NULL);
++	if (!root)
++		return -ENOMEM;
++
++	debugfs_create_atomic64("reuse_protected", 0444, root, 
++				&semantic_stats.reuse_protected);
++	debugfs_create_atomic64("ephemeral_reclaimed", 0444, root, 
++				&semantic_stats.ephemeral_reclaimed);
++	return 0;
++}
++late_initcall(semantic_reclaim_debugfs_init);
++
++/* Exported helpers for rmap bias tracking */
++void mm_account_semantic_reuse_protected(void)
++{
++	atomic64_inc(&semantic_stats.reuse_protected);
++}
++
++void mm_account_semantic_ephemeral_reclaimed(void)
++{
++	atomic64_inc(&semantic_stats.ephemeral_reclaimed);
++}
++/* End RFC */
++
+ static bool folio_referenced_one(struct folio *folio,
+ 	struct vm_area_struct *vma, unsigned long address, void *arg)
+ {
+-- 
+2.34.1
