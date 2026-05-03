@@ -1,0 +1,41 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 13:10:00 -0700
+Subject: [PATCH 0002/0003] RFC: mm: wire semantic madvise to vma metadata
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch updates the madvise handler to record the requested
+semantic hint into the VMA's metadata field.
+
+If a VMA already has a semantic hint, it is overwritten by the
+latest call, ensuring only one intent signal is active per region.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ mm/madvise.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 8d28a802e2d1..8d28f802e2c1 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1027,10 +1027,20 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+ 	case MADV_NOHUGEPAGE:
+ 	case MADV_COLLAPSE:
+ 	case MADV_SEMANTIC_STREAMING:
++		vma->vm_semantic_hint = VM_SEMANTIC_STREAMING;
++		return 0;
+ 	case MADV_SEMANTIC_REUSE:
++		vma->vm_semantic_hint = VM_SEMANTIC_REUSE;
++		return 0;
+ 	case MADV_SEMANTIC_EPHEMERAL:
+-		/* RFC: Logic/Policy deferred to Milestone 3 */
++		vma->vm_semantic_hint = VM_SEMANTIC_EPHEMERAL;
+ 		return 0;
++
+ 	case MADV_DONTDUMP:
+ 	case MADV_DODUMP:
+ 	case MADV_WIPEONFORK:
+-- 
+2.34.1

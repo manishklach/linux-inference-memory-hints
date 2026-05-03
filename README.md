@@ -8,7 +8,7 @@ The current implementation is intentionally minimal and experimental, designed t
 
 ## Research Roadmap
 - **Milestone 1**: Semantic hints accepted by patched kernel (Patch v2).
-- **Milestone 2**: Persistent metadata tracking (VMA tagging).
+- **Milestone 2**: Persistent metadata tracking (VMA tagging) (Patch v3).
 - **Milestone 3**: Basic reclaim bias implementation.
 - **Milestone 4**: Advanced NUMA, THP, and MGLRU experiments.
 
@@ -51,7 +51,7 @@ If you see `madvise failed: Invalid Argument` in the benchmark output:
 ## Design Constraints
 - **Primary Language**: C
 - **Minimal Surface Area**: Implementation avoids invasive changes to core VM structures.
-- **No VM Flag Conflicts**: Semantic state is stored in `vma->vm_private_data`.
+- **No VM Flag Conflicts**: Semantic state is stored in `vma->vm_semantic_hint`.
 
 ## Known Limitations
 See [docs/known-limitations.md](docs/known-limitations.md) for a detailed list of prototype constraints.

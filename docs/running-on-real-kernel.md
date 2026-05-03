@@ -21,24 +21,24 @@ sudo apt install build-essential python3-matplotlib numactl
 ```
 
 ## 4. Execution Steps
-1. **Apply the Patch (v2 - Milestone 1)**:
-   This version focus on API acceptance.
+1. **Apply the Patch (v3 - Milestone 2)**:
+   This version includes VMA metadata tracking.
    ```bash
-   git am patches/v2/*.patch
+   git am patches/v3/*.patch
    ```
 
 2. **Verify Support**:
-   Use the built-in check tool to confirm the kernel recognizes semantic hints:
+   Use the built-in check tool:
    ```bash
    make check-semantic-support
    ```
-   A successful result will show `[SUPPORTED]`.
 
-3. **Verify via Selftest**:
-   If you have a full kernel tree, you can run the new selftest:
+3. **Verify Metadata Recording**:
+   Run the metadata validation tool and check kernel logs:
    ```bash
-   gcc tools/testing/selftests/mm/semantic_hint_test.c -o semantic_hint_test
-   ./semantic_hint_test
+   gcc tools/check_semantic_metadata.c -o check_semantic_metadata
+   ./check_semantic_metadata
+   dmesg | grep madvise
    ```
 
 ## 5. Result Collection
