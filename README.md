@@ -1,5 +1,12 @@
 # Linux Inference Memory Hints
 
+**Experimental Linux kernel patchset and benchmark suite for semantic memory hints in inference workloads.**
+
+Explores whether user-space intent (streaming vs reuse vs ephemeral memory) can influence reclaim behavior in Multi-Gen LRU (MGLRU).
+
+### Topics
+`linux-kernel`, `memory-management`, `mglru`, `kernel-hacking`, `systems-research`, `virtual-memory`, `performance-engineering`, `qemu`, `kernel-patching`, `linux-mm`, `benchmarking`, `operating-systems`, `ai-systems`, `inference-systems`, `low-level-systems`
+
 ## Upstream Status
 
 This work is a research prototype investigating semantic memory hints in Linux memory management.
