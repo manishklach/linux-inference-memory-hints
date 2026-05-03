@@ -15,34 +15,33 @@ research tools.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/madvise.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ mm/madvise.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/mm/madvise.c b/mm/madvise.c
-index 287958b4f2c0..8d28a802e2d1 100644
+index a828f80..b938c90 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -1026,6 +1026,11 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
- 	case MADV_HUGEPAGE:
- 	case MADV_NOHUGEPAGE:
+@@ -1094,6 +1094,11 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+ 		break;
  	case MADV_COLLAPSE:
+ 		return madvise_collapse(vma, prev, start, end);
 +	case MADV_SEMANTIC_STREAMING:
 +	case MADV_SEMANTIC_REUSE:
 +	case MADV_SEMANTIC_EPHEMERAL:
 +		/* RFC: Logic/Policy deferred to Milestone 3 */
 +		return 0;
- 	case MADV_DONTDUMP:
- 	case MADV_DODUMP:
- 	case MADV_WIPEONFORK:
-@@ -1182,6 +1187,9 @@ madvise_behavior_valid(int behavior)
- 	case MADV_HUGEPAGE:
- 	case MADV_NOHUGEPAGE:
- 	case MADV_COLLAPSE:
+ 	}
+ 
+ 	anon_name = anon_vma_name(vma);
+@@ -1198,6 +1203,10 @@ madvise_behavior_valid(int behavior)
+ 	case MADV_HWPOISON:
+ #endif
 +	case MADV_SEMANTIC_STREAMING:
 +	case MADV_SEMANTIC_REUSE:
 +	case MADV_SEMANTIC_EPHEMERAL:
- 	case MADV_DONTDUMP:
- 	case MADV_DODUMP:
- 	case MADV_WIPEONFORK:
+ 		return true;
+ 
+ 	default:
 -- 
 2.34.1
