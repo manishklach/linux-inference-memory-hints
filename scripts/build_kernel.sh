@@ -45,17 +45,28 @@ fi
 
 cd "${BUILD_DIR}"
 
-# 3. Apply Patches
+# 3. Preflight Check
+echo "Verifying kernel source integrity..."
+if [ ! -f "include/uapi/asm-generic/mman-common.h" ]; then
+    echo "ERROR: Critical header mman-common.h not found in ${BUILD_DIR}!"
+    echo "Found files:"
+    find . -path "*mman-common.h"
+    exit 1
+fi
+
+# 4. Apply Patches
 echo "Applying research patches..."
-git init 2>/dev/null || true
-git add .
-git commit -m "Base kernel" 2>/dev/null || true
+for patch_set in v2 v3 v4; do
+    echo "--- Applying ${patch_set} patchset ---"
+    for p in ${REPO_ROOT}/patches/${patch_set}/*.patch; do
+        if [ -f "$p" ]; then
+            echo "Applying $(basename "$p")..."
+            patch -p1 < "$p"
+        fi
+    done
+done
 
-git am ${REPO_ROOT}/patches/v2/*.patch
-git am ${REPO_ROOT}/patches/v3/*.patch
-git am ${REPO_ROOT}/patches/v4/*.patch
-
-# 4. Configure
+# 5. Configure
 echo "Configuring kernel..."
 make defconfig
 
@@ -76,7 +87,7 @@ for cfg in CONFIG_DEBUG_FS CONFIG_LRU_GEN CONFIG_PROC_FS CONFIG_PSI CONFIG_CGROU
     fi
 done
 
-# 5. Build
+# 6. Build
 echo "Building bzImage (this will take time)..."
 make -j$(nproc) bzImage
 
