@@ -1,0 +1,16 @@
+# Binary artifacts
+*.tar.xz
+*.ext4
+bzImage
+kernel-build/
+mnt_rootfs/
+wget-log*
+
+# Results
+results/
+
+# Compilation artifacts
+benchmarks/synthetic/patterns
+benchmarks/pressure/pressure
+tools/check_semantic_support
+tools/check_semantic_metadata
