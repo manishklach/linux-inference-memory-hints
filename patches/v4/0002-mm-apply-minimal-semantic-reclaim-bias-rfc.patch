@@ -27,10 +27,10 @@ Signed-off-by: Research Team <research@example.local>
  1 file changed, 15 insertions(+)
 
 diff --git a/mm/rmap.c b/mm/rmap.c
-index a123456789ab..8d28f802e2c1 100644
+index a123456..b938c90 100644
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -825,6 +825,7 @@ static bool folio_referenced_one(struct folio *folio,
+@@ -807,6 +807,7 @@ static bool folio_referenced_one(struct folio *folio,
  	struct folio_referenced_arg *pra = arg;
  	DEFINE_FOLIO_VMA_WALK(pvmw, folio, vma, address, 0);
  	int referenced = 0;
@@ -38,8 +38,8 @@ index a123456789ab..8d28f802e2c1 100644
  
  	while (page_vma_mapped_walk(&pvmw)) {
  		address = pvmw.address;
-@@ -870,6 +871,20 @@ static bool folio_referenced_one(struct folio *folio,
- 		referenced++;
+@@ -850,6 +851,20 @@ static bool folio_referenced_one(struct folio *folio,
+ 		}
  	}
  
 +	/* RFC: Apply semantic reclaim bias */
@@ -58,6 +58,6 @@ index a123456789ab..8d28f802e2c1 100644
 +
  	if (referenced) {
  		pra->referenced++;
- 		pra->vm_flags |= vma->vm_flags;
+ 		pra->vm_flags |= vma->vm_flags & ~VM_LOCKED;
 -- 
 2.34.1

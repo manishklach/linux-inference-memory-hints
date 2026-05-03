@@ -8,38 +8,54 @@ Subject: [PATCH 0003/0003] RFC: mm: add semantic reclaim counters
 This patch adds lightweight observability counters to track the impact
 of semantic reclaim bias.
 
-Counters (exposed via /sys/kernel/debug/mm/semantic_reclaim):
+Counters (exposed via /sys/kernel/debug/semantic_reclaim/):
 - reuse_protected: Count of folios protected due to REUSE hint.
 - ephemeral_reclaimed: Count of ephemeral folios where references were ignored.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/vmscan.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+ include/linux/mm.h |  4 ++++
+ mm/vmscan.c        | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 1234567..8d28f80 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -396,6 +396,10 @@ static inline u8 vma_semantic_hint(struct vm_area_struct *vma)
+ 	return vma->vm_semantic_hint;
+ }
+ 
++/* RFC: Semantic reclaim accounting helpers */
++void mm_account_semantic_reuse_protected(void);
++void mm_account_semantic_ephemeral_reclaimed(void);
++
+ #ifndef VM_GROWSUP
+ # define VM_GROWSUP	VM_NONE
+ #endif
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 287958b4f2c0..8d28a802e2d1 100644
+index a828f80..b938c90 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
-@@ -55,6 +55,14 @@
- #include "internal.h"
- #include "unaccepted_memory.h"
- 
+@@ -62,6 +62,13 @@
+ #include <linux/khugepaged.h>
+ #include <linux/rculist_nulls.h>
+ #include <linux/random.h>
++
 +/* RFC: Semantic Reclaim Counters */
-+#include <linux/debugfs.h>
 +static struct {
 +	atomic64_t reuse_protected;
 +	atomic64_t ephemeral_reclaimed;
 +} semantic_stats;
 +/* End RFC */
-+
+ 
  #define CREATE_TRACE_POINTS
  #include <trace/events/vmscan.h>
- 
-@@ -825,6 +833,43 @@ static void folio_check_dirty_writeback(struct folio *folio,
+@@ -825,3 +832,36 @@ static void folio_check_dirty_writeback(struct folio *folio,
+ 	if (folio_test_dirty(folio) || folio_test_writeback(folio))
  		*dirty = true;
  }
- 
++
 +/* RFC: DebugFS initialization for semantic counters */
 +static int __init semantic_reclaim_debugfs_init(void)
 +{
@@ -66,9 +82,5 @@ index 287958b4f2c0..8d28a802e2d1 100644
 +	atomic64_inc(&semantic_stats.ephemeral_reclaimed);
 +}
 +/* End RFC */
-+
- static bool folio_referenced_one(struct folio *folio,
- 	struct vm_area_struct *vma, unsigned long address, void *arg)
- {
 -- 
 2.34.1

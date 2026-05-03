@@ -14,33 +14,31 @@ or if the kernel is built with DEBUG.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/madvise.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ mm/madvise.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/mm/madvise.c b/mm/madvise.c
-index 8d28f802e2c1..8d28f802e2d1 100644
+index a828f80..b938c90 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -1028,12 +1028,15 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
- 	case MADV_COLLAPSE:
+@@ -1096,12 +1096,21 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+ 		return madvise_collapse(vma, prev, start, end);
  	case MADV_SEMANTIC_STREAMING:
  		vma->vm_semantic_hint = VM_SEMANTIC_STREAMING;
-+		goto out_debug;
++		pr_debug("madvise: vma %p [%lx-%lx] semantic hint set to STREAMING\n",
++			 vma, vma->vm_start, vma->vm_end);
+ 		return 0;
  	case MADV_SEMANTIC_REUSE:
  		vma->vm_semantic_hint = VM_SEMANTIC_REUSE;
-+		goto out_debug;
++		pr_debug("madvise: vma %p [%lx-%lx] semantic hint set to REUSE\n",
++			 vma, vma->vm_start, vma->vm_end);
+ 		return 0;
  	case MADV_SEMANTIC_EPHEMERAL:
  		vma->vm_semantic_hint = VM_SEMANTIC_EPHEMERAL;
--		return 0;
-+		goto out_debug;
++		pr_debug("madvise: vma %p [%lx-%lx] semantic hint set to EPHEMERAL\n",
++			 vma, vma->vm_start, vma->vm_end);
+ 		return 0;
+ 	}
  
-+out_debug:
-+	pr_debug("madvise: vma %p [%lx-%lx] semantic hint set to %u\n",
-+		 vma, vma->vm_start, vma->vm_end, vma->vm_semantic_hint);
-+	return 0;
-+
- 	case MADV_DONTDUMP:
- 	case MADV_DODUMP:
- 	case MADV_WIPEONFORK:
 -- 
 2.34.1

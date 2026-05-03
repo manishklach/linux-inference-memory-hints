@@ -17,16 +17,16 @@ transitions.
 Signed-off-by: Research Team <research@example.local>
 ---
  include/linux/mm.h       | 7 +++++++
- include/linux/mm_types.h | 3 +++
- 2 files changed, 10 insertions(+)
+ include/linux/mm_types.h | 1 +
+ 2 files changed, 8 insertions(+)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 123456789abc..8d28f802e2c1 100644
+index 1234567..8d28f80 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -265,6 +265,13 @@ extern unsigned int kobj_max_free_obj(struct kobject *kobj);
- #define VM_HIGH_ARCH_BIT_BIT		34
- #endif /* CONFIG_ARCH_USES_HIGH_VMA_FLAGS */
+@@ -384,6 +384,13 @@ extern unsigned int kobj_max_free_obj(struct kobject *kobj);
+ #define VM_MTE_ALLOWED	VM_NONE
+ #endif
  
 +/* RFC: Semantic memory hints */
 +#define VM_SEMANTIC_NONE	0
@@ -36,22 +36,20 @@ index 123456789abc..8d28f802e2c1 100644
 +/* End RFC */
 +
  #ifndef VM_GROWSUP
- #define VM_GROWSUP	VM_NONE
+ # define VM_GROWSUP	VM_NONE
  #endif
 diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index abc123456789..8d28a802e2d1 100644
+index abc1234..8d28a80 100644
 --- a/include/linux/mm_types.h
 +++ b/include/linux/mm_types.h
-@@ -620,6 +620,9 @@ struct vm_area_struct {
- 
- 	struct vma_numab_state *numab_state;	/* NUMA balancing state */
+@@ -658,6 +658,7 @@ struct vm_area_struct {
  #endif
-+#ifdef CONFIG_MM_SEMANTIC_HINTS /* RFC placeholder */
+ #ifdef CONFIG_NUMA_BALANCING
+ 	struct vma_numab_state *numab_state;	/* NUMA Balancing state */
+ #endif
 +	u8 vm_semantic_hint;
-+#endif
-+	u8 vm_semantic_hint; /* Force for RFC prototype */
+ 	struct vm_userfaultfd_ctx vm_userfaultfd_ctx;
  } __randomize_layout;
  
- struct vma_lock {
 -- 
 2.34.1

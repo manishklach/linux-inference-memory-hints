@@ -16,7 +16,7 @@ Signed-off-by: Research Team <research@example.local>
 
 diff --git a/tools/testing/selftests/mm/semantic_hint_test.c b/tools/testing/selftests/mm/semantic_hint_test.c
 new file mode 100644
-index 000000000000..8d28f802e2c1
+index 0000000..a828f80
 --- /dev/null
 +++ b/tools/testing/selftests/mm/semantic_hint_test.c
 @@ -0,0 +1,65 @@
@@ -84,4 +84,4 @@ index 000000000000..8d28f802e2c1
 +	return ret;
 +}
 +-- 
-2.34.1
++2.34.1

@@ -18,10 +18,10 @@ Signed-off-by: Research Team <research@example.local>
  1 file changed, 6 insertions(+)
 
 diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 8d28f802e2c1..9d28f802e2c1 100644
+index 1234567..8d28f80 100644
 --- a/include/linux/mm.h
 +++ b/include/linux/mm.h
-@@ -272,6 +272,12 @@ extern unsigned int kobj_max_free_obj(struct kobject *kobj);
+@@ -390,6 +390,12 @@ extern unsigned int kobj_max_free_obj(struct kobject *kobj);
  #define VM_SEMANTIC_EPHEMERAL	3
  /* End RFC */
  
@@ -32,7 +32,7 @@ index 8d28f802e2c1..9d28f802e2c1 100644
 +}
 +
  #ifndef VM_GROWSUP
- #define VM_GROWSUP	VM_NONE
+ # define VM_GROWSUP	VM_NONE
  #endif
 -- 
 2.34.1
