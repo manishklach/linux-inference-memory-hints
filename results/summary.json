@@ -1,0 +1,50 @@
+{
+  "baseline": {
+    "pgfault": 4797237.5,
+    "pgmajfault": 4.0,
+    "pgsteal_kswapd": 0.0,
+    "pgsteal_direct": 0.0,
+    "pgsteal_khugepaged": 0.0,
+    "pgscan_kswapd": 0.0,
+    "pgscan_direct": 0.0,
+    "pgscan_khugepaged": 0.0,
+    "pgscan_direct_throttle": 0.0,
+    "pgscan_anon": 0.0,
+    "pgscan_file": 0.0,
+    "pgsteal_anon": 0.0,
+    "pgsteal_file": 0.0,
+    "reclaim_efficiency": 0
+  },
+  "existing-madvise": {
+    "pgfault": 5412965.0,
+    "pgmajfault": 2.0,
+    "pgsteal_kswapd": 0.0,
+    "pgsteal_direct": 0.0,
+    "pgsteal_khugepaged": 0.0,
+    "pgscan_kswapd": 0.0,
+    "pgscan_direct": 0.0,
+    "pgscan_khugepaged": 0.0,
+    "pgscan_direct_throttle": 0.0,
+    "pgscan_anon": 0.0,
+    "pgscan_file": 0.0,
+    "pgsteal_anon": 0.0,
+    "pgsteal_file": 0.0,
+    "reclaim_efficiency": 0
+  },
+  "semantic": {
+    "pgfault": 5404675.0,
+    "pgmajfault": 2.0,
+    "pgsteal_kswapd": 0.0,
+    "pgsteal_direct": 0.0,
+    "pgsteal_khugepaged": 0.0,
+    "pgscan_kswapd": 0.0,
+    "pgscan_direct": 0.0,
+    "pgscan_khugepaged": 0.0,
+    "pgscan_direct_throttle": 0.0,
+    "pgscan_anon": 0.0,
+    "pgscan_file": 0.0,
+    "pgsteal_anon": 0.0,
+    "pgsteal_file": 0.0,
+    "reclaim_efficiency": 0
+  }
+}

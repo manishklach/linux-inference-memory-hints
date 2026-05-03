@@ -1,0 +1,4 @@
+mode,pgfault,pgmajfault,pgscan_anon,pgscan_direct,pgscan_direct_throttle,pgscan_file,pgscan_khugepaged,pgscan_kswapd,pgsteal_anon,pgsteal_direct,pgsteal_file,pgsteal_khugepaged,pgsteal_kswapd,reclaim_efficiency
+baseline,4797237.5,4.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+existing-madvise,5412965.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0
+semantic,5404675.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0

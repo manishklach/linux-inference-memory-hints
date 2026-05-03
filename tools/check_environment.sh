@@ -16,6 +16,9 @@ fi
 
 # Kernel / OS Info
 echo "Kernel version: $(uname -r)"
+if grep -qi microsoft /proc/version; then
+    echo "[WARN] WSL detected. WSL is suitable for validating scripts, but not for meaningful reclaim/MGLRU results."
+fi
 
 # Feature checks
 if [ -f /proc/vmstat ]; then

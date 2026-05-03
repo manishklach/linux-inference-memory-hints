@@ -2,6 +2,7 @@ From: Research Team <research@example.local>
 Date: Sun, 3 May 2026 11:00:00 -0700
 Subject: [PATCH 1/3] RFC (DO NOT SUBMIT): mm: add MADV_SEMANTIC_* definitions to UAPI
 
+// SPDX-License-Identifier: GPL-2.0-only
 /* RFC ONLY – NOT FOR SUBMISSION */
 
 Add three new madvise hints to allow userspace to signal memory

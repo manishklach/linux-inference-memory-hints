@@ -1,0 +1,48 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 12:10:00 -0700
+Subject: [PATCH 0002/0003] RFC: mm: accept semantic madvise hints
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch allows the kernel to recognize and accept the new
+MADV_SEMANTIC_* hints. At this stage, the hints are validated for
+address range and permission but do not trigger any underlying
+memory policy or metadata tracking.
+
+The goal is to provide a clean detection point for userspace
+research tools.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ mm/madvise.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 287958b4f2c0..8d28a802e2d1 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1026,6 +1026,11 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+ 	case MADV_HUGEPAGE:
+ 	case MADV_NOHUGEPAGE:
+ 	case MADV_COLLAPSE:
++	case MADV_SEMANTIC_STREAMING:
++	case MADV_SEMANTIC_REUSE:
++	case MADV_SEMANTIC_EPHEMERAL:
++		/* RFC: Logic/Policy deferred to Milestone 3 */
++		return 0;
+ 	case MADV_DONTDUMP:
+ 	case MADV_DODUMP:
+ 	case MADV_WIPEONFORK:
+@@ -1182,6 +1187,9 @@ madvise_behavior_valid(int behavior)
+ 	case MADV_HUGEPAGE:
+ 	case MADV_NOHUGEPAGE:
+ 	case MADV_COLLAPSE:
++	case MADV_SEMANTIC_STREAMING:
++	case MADV_SEMANTIC_REUSE:
++	case MADV_SEMANTIC_EPHEMERAL:
+ 	case MADV_DONTDUMP:
+ 	case MADV_DODUMP:
+ 	case MADV_WIPEONFORK:
+-- 
+2.34.1

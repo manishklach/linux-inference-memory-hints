@@ -1,0 +1,87 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 12:20:00 -0700
+Subject: [PATCH 0003/0003] RFC: selftest: add semantic madvise probe
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+Add a simple selftest to verify that the kernel correctly
+accepts (or rejects) semantic memory hints.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ tools/testing/selftests/mm/semantic_hint_test.c | 65 +++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
+ create mode 100644 tools/testing/selftests/mm/semantic_hint_test.c
+
+diff --git a/tools/testing/selftests/mm/semantic_hint_test.c b/tools/testing/selftests/mm/semantic_hint_test.c
+new file mode 100644
+index 000000000000..8d28f802e2c1
+--- /dev/null
++++ b/tools/testing/selftests/mm/semantic_hint_test.c
+@@ -0,0 +1,65 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/mman.h>
++#include <unistd.h>
++#include <errno.h>
++#include <string.h>
++
++/* Fallback definitions if headers are old */
++#ifndef MADV_SEMANTIC_STREAMING
++#define MADV_SEMANTIC_STREAMING  30
++#endif
++#ifndef MADV_SEMANTIC_REUSE
++#define MADV_SEMANTIC_REUSE      31
++#endif
++#ifndef MADV_SEMANTIC_EPHEMERAL
++#define MADV_SEMANTIC_EPHEMERAL  32
++#endif
++
++static int test_hint(void *addr, size_t size, int advice, const char *name)
++{
++	if (madvise(addr, size, advice) == 0) {
++		printf("[OK] %s accepted\n", name);
++		return 0;
++	}
++
++	if (errno == EINVAL) {
++		printf("[SKIP] %s not supported by kernel (EINVAL)\n", name);
++		return 0;
++	}
++
++	printf("[FAIL] %s failed with unexpected error: %s\n", name, strerror(errno));
++	return 1;
++}
++
++int main()
++{
++	size_t size = getpagesize();
++	void *addr;
++	int ret = 0;
++
++	printf("--- Semantic Hint API Probe ---\n");
++
++	addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++	if (addr == MAP_FAILED) {
++		perror("mmap");
++		return 1;
++	}
++
++	ret |= test_hint(addr, size, MADV_SEMANTIC_STREAMING, "STREAMING");
++	ret |= test_hint(addr, size, MADV_SEMANTIC_REUSE, "REUSE");
++	ret |= test_hint(addr, size, MADV_SEMANTIC_EPHEMERAL, "EPHEMERAL");
++
++	munmap(addr, size);
++
++	if (ret == 0) {
++		printf("Probe complete.\n");
++	} else {
++		printf("Probe finished with failures.\n");
++	}
++
++	return ret;
++}
++-- 
+2.34.1

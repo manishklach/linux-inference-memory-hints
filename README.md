@@ -6,6 +6,12 @@ This work is a research prototype investigating semantic memory hints in Linux m
 
 The current implementation is intentionally minimal and experimental, designed to evaluate feasibility and collect benchmark data. It has not been upstreamed.
 
+## Research Roadmap
+- **Milestone 1**: Semantic hints accepted by patched kernel (Patch v2).
+- **Milestone 2**: Persistent metadata tracking (VMA tagging).
+- **Milestone 3**: Basic reclaim bias implementation.
+- **Milestone 4**: Advanced NUMA, THP, and MGLRU experiments.
+
 ## Quick Start
 To build and run a full comparative demo (Baseline vs. Semantic Hints):
 
@@ -36,8 +42,10 @@ If you see `madvise failed: Invalid Argument` in the benchmark output:
 - **Impact**: The benchmark will continue to run, but the kernel will ignore the semantic hints, effectively making the "Semantic" run identical to the "Baseline."
 
 ### What to look for
-1. **Reclaim Efficiency**: In the `efficiency_ratio.png` plot, look for higher values in the Semantic mode. This indicates the kernel is successfully reclaiming "cold/ephemeral" pages while scanning fewer "hot/reuse" pages.
-2. **Page Faults**: Check `faults_comparison.png`. Successful semantic hints should ideally reduce **Major Faults** (pgmajfault) for the reuse region under heavy pressure.
+> **NOTE ON WSL2**: WSL2 validation confirms the harness works but does not provide meaningful reclaim data. Real reclaim behavior should be measured on a patched kernel running on bare metal or a full VM.
+
+1. **Reclaim Efficiency**: In the `efficiency_ratio.png` plot, look for higher values in the Semantic mode. 
+2. **Support Verification**: Run `make check-semantic-support` to verify if your kernel supports the RFC hints.
 3. **Scan Counters**: A reduction in `pgscan` relative to `pgsteal` suggests the kernel is making more targeted reclaim decisions.
 
 ## Design Constraints

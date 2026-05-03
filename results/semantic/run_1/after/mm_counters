@@ -1,0 +1,13 @@
+pgfault 27724473
+pgmajfault 6411
+pgsteal_kswapd 0
+pgsteal_direct 0
+pgsteal_khugepaged 0
+pgscan_kswapd 0
+pgscan_direct 0
+pgscan_khugepaged 0
+pgscan_direct_throttle 0
+pgscan_anon 0
+pgscan_file 0
+pgsteal_anon 0
+pgsteal_file 0

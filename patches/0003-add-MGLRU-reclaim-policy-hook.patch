@@ -2,6 +2,7 @@ From: Research Team <research@example.local>
 Date: Sun, 3 May 2026 11:20:00 -0700
 Subject: [PATCH 3/3] RFC (DO NOT SUBMIT): mm: add lightweight reclaim bias in vmscan
 
+// SPDX-License-Identifier: GPL-2.0-only
 /* RFC ONLY – NOT FOR SUBMISSION */
 
 Integrate semantic hints into the page reclaim path by biasing the

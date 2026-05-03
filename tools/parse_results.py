@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0-only
 import os
 import sys
 import json
@@ -42,7 +43,6 @@ def main():
             continue
         
         runs_data = []
-        # Support both flat and nested structure
         subdirs = [d for d in os.listdir(mode_path) if os.path.isdir(os.path.join(mode_path, d))]
         
         for run_dir in subdirs:
@@ -57,14 +57,12 @@ def main():
                     runs_data.append(diff)
         
         if runs_data:
-            # Average across runs
             avg_metrics = {}
             metric_keys = runs_data[0].keys()
             for key in metric_keys:
                 vals = [r[key] for r in runs_data if key in r]
                 avg_metrics[key] = sum(vals) / len(vals)
             
-            # Compute efficiency
             pgscan = avg_metrics.get('pgscan_kswapd', 0) + avg_metrics.get('pgscan_direct', 0)
             pgsteal = avg_metrics.get('pgsteal_kswapd', 0) + avg_metrics.get('pgsteal_direct', 0)
             if pgscan > 0:
@@ -74,7 +72,6 @@ def main():
                 
             summary[mode] = avg_metrics
 
-    # Output results
     with open("results/summary.json", "w") as f:
         json.dump(summary, f, indent=2)
 

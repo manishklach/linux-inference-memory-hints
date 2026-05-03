@@ -2,6 +2,7 @@ From: Research Team <research@example.local>
 Date: Sun, 3 May 2026 11:10:00 -0700
 Subject: [PATCH 2/3] RFC (DO NOT SUBMIT): mm: implement semantic state storage via vm_private_data
 
+// SPDX-License-Identifier: GPL-2.0-only
 /* RFC ONLY – NOT FOR SUBMISSION */
 
 Store the semantic class in a dynamically allocated struct attached

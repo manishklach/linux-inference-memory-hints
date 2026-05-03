@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    printf("Touching pages to force reclaim...\n");
+    printf("Touching pages to force reclaim... (PID: %d)\n", getpid());
     while (1) {
         for (size_t i = 0; i < total_size; i += PAGE_SIZE) {
             ptr[i] = (char)(i & 0xFF);

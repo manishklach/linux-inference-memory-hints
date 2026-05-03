@@ -1,0 +1,37 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 12:00:00 -0700
+Subject: [PATCH 0001/0003] RFC: mm: add MADV_SEMANTIC_* definitions to UAPI
+
+// SPDX-License-Identifier: GPL-2.0-only
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+This patch adds experimental semantic memory hints to the madvise UAPI.
+These hints are designed to allow userspace to signal memory intent
+(streaming vs reuse vs ephemeral) for AI inference workloads.
+
+At this stage, no behavior is guaranteed by the kernel.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ include/uapi/asm-generic/mman-common.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/uapi/asm-generic/mman-common.h b/include/uapi/asm-generic/mman-common.h
+index 6ce1f1ce4c0e..8b28f802d2c1 100644
+--- a/include/uapi/asm-generic/mman-common.h
++++ b/include/uapi/asm-generic/mman-common.h
+@@ -79,6 +79,12 @@
+ 
+ #define MADV_COLLAPSE	25		/* Synchronous hugepage collapse */
+ 
++/* RFC: Semantic memory hints for inference workloads */
++#define MADV_SEMANTIC_STREAMING  30	/* Large read-once sequential access */
++#define MADV_SEMANTIC_REUSE      31	/* High-frequency random access reuse */
++#define MADV_SEMANTIC_EPHEMERAL  32	/* Temporary/short-lived allocation */
++/* End RFC */
++
+ /* compatibility flags */
+ #define MAP_FILE	0
+ 
+-- 
+2.34.1

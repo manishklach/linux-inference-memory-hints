@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
 # Makefile for linux-inference-memory-hints research demo
 
 CC = gcc
@@ -6,7 +7,7 @@ BENCH_DIR = benchmarks
 TOOLS_DIR = tools
 RESULTS_DIR = results
 
-.PHONY: all build run-baseline run-semantic run-pressure collect parse plot demo clean check-env
+.PHONY: all build run-baseline run-semantic run-pressure collect parse plot demo clean check-env validate check-semantic-support
 
 all: build
 
@@ -14,9 +15,19 @@ build:
 	@echo "Building benchmarks..."
 	$(CC) $(CFLAGS) $(BENCH_DIR)/synthetic/memory_patterns.c -o $(BENCH_DIR)/synthetic/patterns
 	$(CC) $(CFLAGS) $(BENCH_DIR)/pressure/memory_pressure.c -o $(BENCH_DIR)/pressure/pressure
+	$(CC) $(CFLAGS) $(TOOLS_DIR)/check_semantic_support.c -o $(TOOLS_DIR)/check_semantic_support
+
+check-semantic-support: build
+	@./$(TOOLS_DIR)/check_semantic_support
 
 check-env:
 	@bash $(TOOLS_DIR)/check_environment.sh
+
+validate: build
+	@echo "Validating scripts and compilation..."
+	@bash -n $(TOOLS_DIR)/*.sh
+	@python3 -m py_compile $(TOOLS_DIR)/*.py
+	@echo "[OK] All components validated."
 
 run-baseline: build
 	@echo "Running Baseline Workload..."
@@ -51,9 +62,7 @@ parse:
 
 plot:
 	@echo "Generating plots..."
-	@mkdir -p $(RESULTS_DIR)/plots
 	python3 $(TOOLS_DIR)/plot_results.py
-	@mv reclaim_comparison.png faults_comparison.png efficiency_ratio.png $(RESULTS_DIR)/plots/
 
 demo: check-env build
 	@echo "Running full experiment demo..."
