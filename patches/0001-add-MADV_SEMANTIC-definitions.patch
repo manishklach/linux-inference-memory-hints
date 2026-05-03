@@ -1,0 +1,36 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 10:00:00 -0700
+Subject: [PATCH 1/4] RFC (DO NOT SUBMIT): mm: add MADV_SEMANTIC_* definitions to UAPI
+
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+Add three new madvise hints to allow userspace to signal memory
+access semantics for inference workloads.
+
+- MADV_SEMANTIC_STREAMING (30): Low-reuse data.
+- MADV_SEMANTIC_REUSE (31): High-priority, high-reuse data.
+- MADV_SEMANTIC_EPHEMERAL (32): Short-lived buffers.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ include/uapi/asm-generic/mman-common.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/uapi/asm-generic/mman-common.h b/include/uapi/asm-generic/mman-common.h
+index [hash]..[hash] 100644
+--- a/include/uapi/asm-generic/mman-common.h
++++ b/include/uapi/asm-generic/mman-common.h
+@@ -79,6 +79,10 @@
+ #define MADV_COLLAPSE	25		/* Synchronous hugepage collapse */
+ 
++/* RFC ONLY – NOT FOR SUBMISSION */
++/* Semantic hints for inference workloads */
++#define MADV_SEMANTIC_STREAMING 30
++#define MADV_SEMANTIC_REUSE     31
++#define MADV_SEMANTIC_EPHEMERAL 32
++
+ #define MADV_HWPOISON	100		/* poison a page after recycling it */
+ #define MADV_SOFT_OFFLINE 101		/* soft offline page for testing */
+ 
+-- 
+2.43.0

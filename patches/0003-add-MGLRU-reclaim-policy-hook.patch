@@ -1,0 +1,45 @@
+From: Research Team <research@example.local>
+Date: Sun, 3 May 2026 10:20:00 -0700
+Subject: [PATCH 3/4] RFC (DO NOT SUBMIT): mm: add lightweight reclaim policy hook in MGLRU path
+
+/* RFC ONLY – NOT FOR SUBMISSION */
+
+Introduce a policy check in the MGLRU (Multi-Gen LRU) scan path to
+prioritize or deprioritize pages based on the VMA semantic class.
+
+- VM_SEMANTIC_STREAMING: Treat as "old" generation to accelerate reclaim.
+- VM_SEMANTIC_REUSE: Treat as "young" generation to protect from reclaim.
+- VM_SEMANTIC_EPHEMERAL: Prioritize for eviction even without pressure.
+
+Signed-off-by: Research Team <research@example.local>
+---
+ mm/vmscan.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index [hash]..[hash] 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -200,6 +200,18 @@ static bool lru_gen_scan_folios(struct lruvec *lruvec, struct scan_control *sc,
+ 	/* ... existing MGLRU logic ... */
+ }
+ 
++/*
++ * RFC ONLY – NOT FOR SUBMISSION
++ * Hook for semantic-aware reclaim decision.
++ * This would be called during page walking or folio isolation.
++ */
++static int get_semantic_priority(struct vm_area_struct *vma)
++{
++	if (vma->vm_flags & VM_SEMANTIC_REUSE)
++		return RECLAIM_PROTECT;
++	if (vma->vm_flags & (VM_SEMANTIC_STREAMING | VM_SEMANTIC_EPHEMERAL))
++		return RECLAIM_ACCELERATE;
++	return RECLAIM_NORMAL;
++}
++
+ #ifdef CONFIG_MEMCG
+ /* ... */
+ #endif
+-- 
+2.43.0
