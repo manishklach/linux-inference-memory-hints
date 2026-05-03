@@ -6,11 +6,14 @@ This work is a research prototype investigating semantic memory hints in Linux m
 
 The current implementation is intentionally minimal and experimental, designed to evaluate feasibility and collect benchmark data. It has not been upstreamed.
 
-## Research Roadmap
-- **Milestone 1**: Semantic hints accepted by patched kernel (Patch v2).
-- **Milestone 2**: Persistent metadata tracking (VMA tagging) (Patch v3).
-- **Milestone 3**: Best-effort semantic reclaim bias (Patch v4).
-- **Milestone 4**: Advanced NUMA, THP, and MGLRU experiments.
+## Running on a Patched Kernel
+
+While the **WSL2 environment** is excellent for validating scripts and build correctness, measuring actual reclaim behavior requires the research patches to be active in the kernel.
+
+We provide a reproducible **QEMU-based environment** to evaluate these patches:
+1. **Build**: `./scripts/build_kernel.sh` (Downloads and patches 6.6 LTS).
+2. **Setup**: Follow the [QEMU Setup Guide](docs/qemu-setup.md) to prepare a rootfs.
+3. **Run**: `./scripts/run_qemu.sh` launches the VM with the patched kernel and shared repo access.
 
 ## Quick Start
 To build and run a full comparative demo (Baseline vs. Semantic Hints):
