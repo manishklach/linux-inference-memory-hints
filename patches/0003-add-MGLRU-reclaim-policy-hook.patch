@@ -1,45 +1,73 @@
 From: Research Team <research@example.local>
-Date: Sun, 3 May 2026 10:20:00 -0700
-Subject: [PATCH 3/4] RFC (DO NOT SUBMIT): mm: add lightweight reclaim policy hook in MGLRU path
+Date: Sun, 3 May 2026 11:20:00 -0700
+Subject: [PATCH 3/3] RFC (DO NOT SUBMIT): mm: add lightweight reclaim bias in vmscan
 
 /* RFC ONLY – NOT FOR SUBMISSION */
 
-Introduce a policy check in the MGLRU (Multi-Gen LRU) scan path to
-prioritize or deprioritize pages based on the VMA semantic class.
+Integrate semantic hints into the page reclaim path by biasing the
+referenced bit check in folio_referenced_one().
 
-- VM_SEMANTIC_STREAMING: Treat as "old" generation to accelerate reclaim.
-- VM_SEMANTIC_REUSE: Treat as "young" generation to protect from reclaim.
-- VM_SEMANTIC_EPHEMERAL: Prioritize for eviction even without pressure.
+Logic:
+- SEMANTIC_REUSE: Increment referenced count to protect from eviction.
+- SEMANTIC_EPHEMERAL: Skip reference check or force eviction (v1: prioritize reclaim).
+- Adds debug counters to /proc/vmstat:
+  - semantic_reuse_protected
+  - semantic_ephemeral_reclaimed
+
+Limitations:
+- Only affects anonymous memory mapped by a VMA with the hint.
+- Bias is lightweight to prevent systemic instability.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/vmscan.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ mm/vmscan.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index [hash]..[hash] 100644
+index 28148b1..f9e9a1d 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
-@@ -200,6 +200,18 @@ static bool lru_gen_scan_folios(struct lruvec *lruvec, struct scan_control *sc,
- 	/* ... existing MGLRU logic ... */
- }
+@@ -56,6 +56,15 @@
+ #include "internal.h"
  
-+/*
-+ * RFC ONLY – NOT FOR SUBMISSION
-+ * Hook for semantic-aware reclaim decision.
-+ * This would be called during page walking or folio isolation.
-+ */
-+static int get_semantic_priority(struct vm_area_struct *vma)
-+{
-+	if (vma->vm_flags & VM_SEMANTIC_REUSE)
-+		return RECLAIM_PROTECT;
-+	if (vma->vm_flags & (VM_SEMANTIC_STREAMING | VM_SEMANTIC_EPHEMERAL))
-+		return RECLAIM_ACCELERATE;
-+	return RECLAIM_NORMAL;
-+}
++/* RFC ONLY - Define local duplicate of semantic_info to avoid header hell in prototype */
++struct vm_semantic_info {
++	u8 semantic_class;
++};
 +
- #ifdef CONFIG_MEMCG
- /* ... */
- #endif
++enum semantic_class {
++	SEMANTIC_NONE = 0,
++	SEMANTIC_STREAMING,
++	SEMANTIC_REUSE,
++	SEMANTIC_EPHEMERAL,
++};
++
+ /*
+  * folio_referenced() counts relevant references.
+  */
+@@ -800,6 +809,17 @@ static bool folio_referenced_one(struct folio *folio,
+ 	struct folio_referenced_arg *pra = arg;
+ 	struct page_vma_mapped_walk pvmw = {
+ 		.folio = folio,
+ 		.vma = vma,
+ 		.address = address,
+ 		.flags = PVMW_SYNC,
+ 	};
+ 	int referenced = 0;
+ 
++	/* RFC ONLY – Semantic Bias */
++	struct vm_semantic_info *info = vma->vm_private_data;
++	if (info) {
++		if (info->semantic_class == SEMANTIC_REUSE) {
++			pra->referenced++;
++			// count_vm_event(SEMANTIC_REUSE_PROTECTED); // Placeholder for vmstat
++		} else if (info->semantic_class == SEMANTIC_EPHEMERAL) {
++			/* Force reclaim by not counting hardware references */
++			return true; 
++		}
++	}
++
+ 	while (page_vma_mapped_walk(&pvmw)) {
+ 		address = pvmw.address;
 -- 
 2.43.0

@@ -1,60 +1,83 @@
 From: Research Team <research@example.local>
-Date: Sun, 3 May 2026 10:10:00 -0700
-Subject: [PATCH 2/4] RFC (DO NOT SUBMIT): mm: track semantic class at VMA level
+Date: Sun, 3 May 2026 11:10:00 -0700
+Subject: [PATCH 2/3] RFC (DO NOT SUBMIT): mm: implement semantic state storage via vm_private_data
 
 /* RFC ONLY – NOT FOR SUBMISSION */
 
-Implement the logic to handle MADV_SEMANTIC_* in madvise_vma() and
-store the resulting state in vm_flags.
+Store the semantic class in a dynamically allocated struct attached
+to vma->vm_private_data. This avoids conflicts with core VM flags
+and provides a safe container for future extensions.
 
-Files likely to be touched:
-- include/linux/mm_types.h: Add VM_SEMANTIC_* flags to vm_flags_t.
-- mm/madvise.c: Update madvise_behavior_valid() and madvise_vma().
+Implementation Notes:
+- Only applied to anonymous VMAs for v1 prototype.
+- Uses kzalloc/kfree for lifecycle management.
+- Note: VMA splitting/merging behavior is not fully handled in this
+  prototype and may result in lost hints or minor leaks.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- include/linux/mm_types.h | 6 ++++++
- mm/madvise.c             | 9 +++++++++
- 2 files changed, 15 insertions(+)
+ mm/madvise.c | 55 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
 
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index [hash]..[hash] 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -400,6 +400,12 @@ struct vm_area_struct {
- #define VM_HUGEPAGE	0x01000000	/* Huge pages have been advised */
- #define VM_NOHUGEPAGE	0x02000000	/* No huge pages have been advised */
- 
-+/* RFC ONLY – NOT FOR SUBMISSION */
-+/* Semantic Hints */
-+#define VM_SEMANTIC_STREAMING 0x04000000
-+#define VM_SEMANTIC_REUSE     0x08000000
-+#define VM_SEMANTIC_EPHEMERAL 0x10000000
-+#define VM_SEMANTIC_MASK      (VM_SEMANTIC_STREAMING | VM_SEMANTIC_REUSE | VM_SEMANTIC_EPHEMERAL)
-+
- #define VM_MERGEABLE	0x04000000	/* KSM may merge identical pages */
- 
- #ifdef CONFIG_ARCH_USES_HIGH_VMA_FLAGS
 diff --git a/mm/madvise.c b/mm/madvise.c
-index [hash]..[hash] 100644
+index 4b0746e5a..f8a7e0d3c 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -100,6 +100,15 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
- 		return madvise_pageout(vma, prev, start, end);
- 	case MADV_WILLNEED:
- 		return madvise_willneed(vma, prev, start, end);
-+	/* RFC ONLY – NOT FOR SUBMISSION */
-+	case MADV_SEMANTIC_STREAMING:
-+		new_flags |= VM_SEMANTIC_STREAMING;
-+		break;
-+	case MADV_SEMANTIC_REUSE:
-+		new_flags |= VM_SEMANTIC_REUSE;
-+		break;
-+	case MADV_SEMANTIC_EPHEMERAL:
-+		new_flags |= VM_SEMANTIC_EPHEMERAL;
-+		break;
- 	case MADV_DONTNEED:
- 		return madvise_dontneed_free(vma, prev, start, end, behavior);
- 	default:
+@@ -40,6 +40,16 @@ struct madvise_walk_private {
+ 	bool pageout;
+ };
+ 
++/* RFC ONLY – NOT FOR SUBMISSION */
++enum semantic_class {
++	SEMANTIC_NONE = 0,
++	SEMANTIC_STREAMING,
++	SEMANTIC_REUSE,
++	SEMANTIC_EPHEMERAL,
++};
++
++struct vm_semantic_info {
++	u8 semantic_class;
++};
++
+ /*
+  * Check if the madvise behavior is valid for the given VMA.
+  */
+@@ -95,6 +105,43 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+ 	unsigned long new_flags = vma->vm_flags;
+ 	int error = 0;
+ 
++	/* Handle Semantic Hints - RFC ONLY */
++	if (behavior >= MADV_SEMANTIC_STREAMING && behavior <= MADV_SEMANTIC_EPHEMERAL) {
++		struct vm_semantic_info *info;
++
++		/* For v1, only support anonymous memory */
++		if (vma->vm_file)
++			return -EINVAL;
++
++		info = vma->vm_private_data;
++		if (!info) {
++			info = kzalloc(sizeof(*info), GFP_KERNEL);
++			if (!info)
++				return -ENOMEM;
++			vma->vm_private_data = info;
++		}
++
++		switch (behavior) {
++		case MADV_SEMANTIC_STREAMING:
++			info->semantic_class = SEMANTIC_STREAMING;
++			break;
++		case MADV_SEMANTIC_REUSE:
++			info->semantic_class = SEMANTIC_REUSE;
++			break;
++		case MADV_SEMANTIC_EPHEMERAL:
++			info->semantic_class = SEMANTIC_EPHEMERAL;
++			break;
++		}
++		return 0;
++	}
++
+ 	switch (behavior) {
+ 	case MADV_REMOVE:
+ 		return madvise_remove(vma, prev, start, end);
 -- 
 2.43.0

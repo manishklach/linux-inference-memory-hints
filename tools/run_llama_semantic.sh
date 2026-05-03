@@ -1,22 +1,28 @@
 #!/bin/bash
-# run_llama_semantic.sh - Run llama.cpp with semantic hints enabled
-# Note: Requires a patched llama.cpp that calls madvise(MADV_SEMANTIC_*)
+# run_llama_semantic.sh - Benchmarking script (Refined)
 set -e
 
 MODEL_PATH=${1:-"./models/llama-7b.gguf"}
 THREADS=${2:-$(nproc)}
 
-echo "Starting Semantic-Aware Llama.cpp Run..."
-echo "Model: $MODEL_PATH"
-echo "Threads: $THREADS"
+run_test() {
+    local MODE=$1
+    local EXTRA_ARGS=$2
+    echo "--- Running $MODE Test ---"
+    sync && echo 3 > /proc/sys/vm/drop_caches
+    ./benchmarks/llama.cpp/main -m "$MODEL_PATH" -t "$THREADS" -n 128 $EXTRA_ARGS > "results/${MODE}_output.log" 2>&1
+    ./tools/collect_mm_stats.sh "$MODE"
+}
 
-# Clear caches for reproducible results
-sync
-echo 3 > /proc/sys/vm/drop_caches
+# 1. Baseline
+run_test "baseline" ""
 
-# Run llama.cpp (semantic)
-# Assuming a flag '--semantic-hints' is implemented in our research fork
-./benchmarks/llama.cpp/main -m "$MODEL_PATH" -t "$THREADS" -n 128 --semantic-hints --prompt "The future of kernel-level memory management is" > semantic_output.log 2>&1
+# 2. Existing Madvise (COLD)
+# Simulate what happens if we just use standard hints
+run_test "madvise_cold" "--madvise-cold"
 
-echo "Semantic Run Complete. Results in semantic_output.log"
-./tools/collect_mm_stats.sh semantic
+# 3. Semantic Hints
+# Requires our patched runtime
+run_test "semantic" "--semantic-hints"
+
+echo "All tests complete. Comparison data available in results/"

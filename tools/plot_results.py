@@ -1,37 +1,54 @@
 #!/usr/bin/env python3
+import pandas as pd
 import matplotlib.pyplot as plt
+import os
 import sys
-import json
 
-def plot_metrics(baseline_json, semantic_json):
-    with open(baseline_json) as f:
-        baseline = json.load(f)
-    with open(semantic_json) as f:
-        semantic = json.load(f)
+def plot_results(csv_path):
+    if not os.path.exists(csv_path):
+        print(f"File not found: {csv_path}")
+        return
 
-    metrics = ['pgfault', 'pgmajfault', 'pgsteal_kswapd', 'thp_collapse_alloc']
+    df = pd.read_csv(csv_path)
+    df.set_index('label', inplace=True)
+
+    # 1. pgscan vs pgsteal
+    fig, ax = plt.subplots(figsize=(10, 6))
+    scan_cols = [c for c in df.columns if 'pgscan' in c]
+    steal_cols = [c for c in df.columns if 'pgsteal' in c]
     
-    b_vals = [baseline.get(m, 0) for m in metrics]
-    s_vals = [semantic.get(m, 0) for m in metrics]
+    total_scan = df[scan_cols].sum(axis=1)
+    total_steal = df[steal_cols].sum(axis=1)
+    
+    plot_df = pd.DataFrame({'pgscan': total_scan, 'pgsteal': total_steal})
+    plot_df.plot(kind='bar', ax=ax)
+    ax.set_title('Page Scan vs Page Steal (Efficiency)')
+    ax.set_ylabel('Page Count')
+    plt.tight_layout()
+    plt.savefig('reclaim_comparison.png')
 
-    x = range(len(metrics))
-    width = 0.35
-
-    fig, ax = plt.subplots()
-    ax.bar([i - width/2 for i in x], b_vals, width, label='Baseline')
-    ax.bar([i + width/2 for i in x], s_vals, width, label='Semantic Hints')
-
+    # 2. Page Faults
+    fig, ax = plt.subplots(figsize=(10, 6))
+    fault_cols = [c for c in df.columns if 'pgfault' in c or 'pgmajfault' in c]
+    df[fault_cols].plot(kind='bar', ax=ax)
+    ax.set_title('Page Faults Comparison')
     ax.set_ylabel('Count')
-    ax.set_title('Kernel Metrics: Baseline vs Semantic Hints')
-    ax.set_xticks(x)
-    ax.set_xticklabels(metrics)
-    ax.legend()
+    plt.tight_layout()
+    plt.savefig('faults_comparison.png')
 
-    plt.savefig('comparison_plot.png')
-    print("Plot saved as comparison_plot.png")
+    # 3. Efficiency Ratio
+    fig, ax = plt.subplots(figsize=(10, 6))
+    efficiency = total_steal / total_scan
+    efficiency.plot(kind='bar', ax=ax, color='teal')
+    ax.set_title('Reclaim Efficiency (pgsteal / pgscan)')
+    ax.set_ylabel('Ratio')
+    plt.tight_layout()
+    plt.savefig('efficiency_ratio.png')
+
+    print("Plots saved as reclaim_comparison.png, faults_comparison.png, and efficiency_ratio.png")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: plot_results.py <baseline.json> <semantic.json>")
-        sys.exit(1)
-    plot_metrics(sys.argv[1], sys.argv[2])
+    csv_file = "summary_results.csv"
+    if len(sys.argv) > 1:
+        csv_file = sys.argv[1]
+    plot_results(csv_file)
