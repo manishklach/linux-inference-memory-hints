@@ -17,20 +17,19 @@ diff --git a/mm/madvise.c b/mm/madvise.c
 index a828f80..b938c90 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -1097,10 +1097,14 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+@@ -1095,3 +1095,14 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
  	case MADV_COLLAPSE:
  		return madvise_collapse(vma, prev, start, end);
- 	case MADV_SEMANTIC_STREAMING:
++
++	case MADV_SEMANTIC_STREAMING:
 +		vma->vm_semantic_hint = VM_SEMANTIC_STREAMING;
 +		return 0;
- 	case MADV_SEMANTIC_REUSE:
++
++	case MADV_SEMANTIC_REUSE:
 +		vma->vm_semantic_hint = VM_SEMANTIC_REUSE;
 +		return 0;
- 	case MADV_SEMANTIC_EPHEMERAL:
--		/* RFC: Logic/Policy deferred to Milestone 3 */
++
++	case MADV_SEMANTIC_EPHEMERAL:
 +		vma->vm_semantic_hint = VM_SEMANTIC_EPHEMERAL;
- 		return 0;
++		return 0;
  	}
- 
--- 
-2.34.1
