@@ -1,7 +1,15 @@
-# Language detection overrides
-scripts/*.sh linguist-vendored
-tools/*.sh linguist-vendored
-patches/** linguist-vendored
+# Language detection overrides - Force C detection
+*.c linguist-language=C
+*.h linguist-language=C
+*.patch linguist-language=C
+
+# Vendor/Ignore scripts and docs to prevent them from dominating language stats
+scripts/** linguist-vendored
+tools/** linguist-vendored
 docs/** linguist-documentation
-benchmarks/**/*.c linguist-detectable=true
-tools/**/*.c linguist-detectable=true
+benchmarks/** linguist-detectable=true
+
+# Ignore generated build artifacts
+kernel-build/** linguist-vendored
+rootfs.ext4 linguist-vendored
+bzImage linguist-vendored
