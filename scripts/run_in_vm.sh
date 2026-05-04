@@ -18,10 +18,10 @@ cd "${MOUNT_POINT}"
 
 # 2. Run verification
 echo "Verifying semantic pipeline..."
-sudo ./tools/verify_semantic_pipeline.sh
+./tools/verify_semantic_pipeline.sh
 
 # 3. Run full experiment
 echo "Running full experiment suite..."
-sudo ./tools/run_full_experiment.sh --require-semantic --runs 3
+./tools/run_full_experiment.sh --require-semantic --runs 3
 
 echo "Experiment complete. Results are available in ${MOUNT_POINT}/results/"

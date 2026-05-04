@@ -33,11 +33,13 @@ fi
 echo "All checks passed. Booting patched kernel in QEMU..."
 
 qemu-system-x86_64 \
-    -kernel "${KERNEL_IMG}" \
-    -m 4G \
-    -smp 4 \
-    -nographic \
-    -append "root=/dev/sda console=ttyS0 earlyprintk=ttyS0 nokaslr" \
-    -drive file="${ROOTFS_IMG}",format=raw \
-    -virtfs local,path="${REPO_PATH}",mount_tag=repo,security_model=none,id=repo \
-    -net nic -net user,hostfwd=tcp::2222-:22
+  -m 4G \
+  -smp 4 \
+  -kernel kernel-build/arch/x86/boot/bzImage \
+  -append "root=/dev/vda console=ttyS0 rw" \
+  -drive file=rootfs.ext4,format=raw,if=virtio \
+  -fsdev local,id=fsdev0,path=.,security_model=none \
+  -device virtio-9p-pci,fsdev=fsdev0,mount_tag=repo \
+  -netdev user,id=net0 \
+  -device virtio-net-pci,netdev=net0 \
+  -nographic 
