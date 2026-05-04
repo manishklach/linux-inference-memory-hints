@@ -10,14 +10,14 @@ semantic hint into the VMA's metadata field.
 
 Signed-off-by: Research Team <research@example.local>
 ---
- mm/madvise.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ mm/madvise.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/mm/madvise.c b/mm/madvise.c
 index a828f80..b938c90 100644
 --- a/mm/madvise.c
 +++ b/mm/madvise.c
-@@ -1095,7 +1095,12 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
+@@ -1097,10 +1097,14 @@ static int madvise_vma_behavior(struct vm_area_struct *vma,
  	case MADV_COLLAPSE:
  		return madvise_collapse(vma, prev, start, end);
  	case MADV_SEMANTIC_STREAMING:
@@ -27,9 +27,9 @@ index a828f80..b938c90 100644
 +		vma->vm_semantic_hint = VM_SEMANTIC_REUSE;
 +		return 0;
  	case MADV_SEMANTIC_EPHEMERAL:
--		return 0;
+-		/* RFC: Logic/Policy deferred to Milestone 3 */
 +		vma->vm_semantic_hint = VM_SEMANTIC_EPHEMERAL;
-+		return 0;
+ 		return 0;
  	}
  
 -- 
